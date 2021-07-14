@@ -20,7 +20,7 @@ const pgClient = new Pool({
   port: keys.pgPort,
 });
 
-const mqttClient = mqtt.connect(mqtt,
+const mqttClient = mqtt.connect("mqtt",
   {
   host:keys.mqttHost,
   port: keys.mqttPort
