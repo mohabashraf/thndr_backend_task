@@ -21,7 +21,7 @@ mqttClient.on('connect', function() {
 mqttClient.on('message', function(topic, message) {
   // message is Buffer
   const stock = JSON.parse(message.toString());
-  console.log(stock)
+  redisClient.hset("values", stock.name, stock);
 });
 
 
@@ -35,8 +35,6 @@ const pgClient = new Pool({
   password: keys.pgPassword,
   port: keys.pgPort,
 });
-
-
 
 
 
