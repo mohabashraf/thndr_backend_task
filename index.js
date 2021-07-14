@@ -10,6 +10,22 @@ app.use(cors());
 
 app.use(bodyParser.json());
 
+const mqttClient = mqtt.connect(`mqtt:${keys.mqttHost}:${keys.mqttPort}`) 
+
+mqttClient.on('connect', function() {
+  mqttClient.subscribe('thndr-trading', (err) => {
+    console.log(err);
+  });
+});
+
+mqttClient.on('message', function(topic, message) {
+  // message is Buffer
+  const stock = JSON.parse(message.toString());
+  console.log(stock)
+});
+
+
+
 // Postgres Client Setup
 const { Pool } = require("pg");
 const pgClient = new Pool({
@@ -20,11 +36,10 @@ const pgClient = new Pool({
   port: keys.pgPort,
 });
 
-const mqttClient = mqtt.connect(`mqtt:${keys.mqttHost}:${keys.mqttPort}`) 
 
-mqttClient.subscribe("thndr-trading", (message) => {
-  console.log(message)
-})
+
+
+
 
 pgClient.on("connect", (client) => {
   client
