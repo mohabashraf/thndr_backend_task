@@ -20,11 +20,7 @@ const pgClient = new Pool({
   port: keys.pgPort,
 });
 
-const mqttClient = mqtt.connect("mqtt",
-  {
-  host:keys.mqttHost,
-  port: keys.mqttPort
-}) 
+const mqttClient = mqtt.connect(`mqtt:${keys.mqttHost}:${keys.mqttPort}`) 
 
 mqttClient.subscribe("thndr-trading", (message) => {
   console.log(message)
