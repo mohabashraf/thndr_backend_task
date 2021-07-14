@@ -21,7 +21,7 @@ mqttClient.on('connect', function() {
 mqttClient.on('message', function(topic, message) {
   // message is Buffer
   const stock = JSON.parse(message.toString());
-  redisClient.hset("values", stock.name, stock);
+  redisClient.hset("values", stock.name, message);
 });
 
 
@@ -68,6 +68,7 @@ app.get("/values/all", async (req, res) => {
 
 app.get("/values/current", async (req, res) => {
   redisClient.hgetall("values", (err, values) => {
+
     res.json(values);
   });
 });
