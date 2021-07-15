@@ -187,7 +187,7 @@ app.get("/stocks/:stock_id", async (req, res) => {
   }
 
 
-  res.json(stock);
+  res.json(JSON.stringify(stock));
 });
 
 
