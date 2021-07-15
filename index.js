@@ -84,6 +84,8 @@ app.get("/stocks", async (req, res) => {
 app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
   const { target, type } = req.body;
 
+  console.log("The param " + req.params.stock_id)
+
   const stock = redisClient.get(req.params.stock_id);
 
   console.log("stock  " + stock);
