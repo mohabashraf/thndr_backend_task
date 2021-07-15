@@ -42,6 +42,7 @@ mqttClient.on("message", function (topic, message) {
   const stock = JSON.parse(message.toString());
   redisClient.hset("values", stock.stock_id, message);
   redisPublisher.publish("insert", stock.stock_id);
+  console.log(stock)
 
 });
 
@@ -62,7 +63,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/values/all", async (req, res) => {
-  const values = await pgClient.query("SELECT * from stocks");
+  const values = await pgClient.query("SELECT * from technical_analysis");
 
   res.send(values.rows);
 });
@@ -98,8 +99,7 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
       console.log("error while retrieving stock value" + err);
       return res.status(422).send("Stock connection lost");
     }
-
-    console.log("the value " + value)
+    stock = value;
   });
 
   console.log("the resolve " + resolve);
