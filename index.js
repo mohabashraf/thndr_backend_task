@@ -180,32 +180,16 @@ app.get("/stocks/:stock_id", async (req, res) => {
     return res.status(422).send("error while retrieving value");
   });
 
-  console.log("the stock " + stock);
 
   if (stock === "") {
     return res.status(422).send("Stock is empty");
   }
 
 
-  res.json(stock);
+  res.json(JSON.parse(stock));
 });
 
 
-
-
-app.post("/values", async (req, res) => {
-  const index = req.body.index;
-
-  if (parseInt(index) > 40) {
-    return res.status(422).send("Index too high");
-  }
-
-  redisClient.hset("values", index, "Nothing yet!");
-  redisPublisher.publish("insert", index);
-  pgClient.query("INSERT INTO values(number) VALUES($1)", [index]);
-
-  res.send({ working: true });
-});
 
 app.listen(5000, (err) => {
   console.log("Listening");
