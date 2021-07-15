@@ -60,7 +60,7 @@ app.get("/", (req, res) => {
 
 app.get("/values/all", async (req, res) => {
   const values = await pgClient
-    .query("SELECT * from admin_technical_analysis")
+    .query("SELECT * from admin_technical_analysis ORDER BY time DESC LIMIT 1 ")
     .catch((err) => console.log(err));
   res.send(values.rows);
 });
