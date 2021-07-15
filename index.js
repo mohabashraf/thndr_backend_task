@@ -93,15 +93,17 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
   console.log("The param " + req.params.stock_id)
 
   let stock = "" 
-  await redisClient.get(req.params.stock_id, (err, value) => {
+  const resolve = await redisClient.get(req.params.stock_id, (err, value) => {
     if (err) { 
       console.log("error while retrieving stock value" + err);
       return res.status(422).send("Stock connection lost");
     }
 
     console.log("the value " + value)
-    stock = value;
+    return resolve(value);
   });
+
+  console.log("the resolve " + resolve);
 
   if(stock === ""){
     return res.status(422).send("Stock is empty");
@@ -121,7 +123,7 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
     target_hit,
   };
 
-  // pgClient.query("INSERT INTO values(number) VALUES($1)", ["inde"]);
+  pgClient.query("INSERT INTO technical_analysis(stock_id, target, type) VALUES($1, $2, $3)", [req.params.stock_id, target, type]);
   // redisPublisher.publish("insert", {target, type});
 
   return res.json(output);
