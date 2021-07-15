@@ -22,10 +22,8 @@ const pgClient = new Pool({
 
 pgClient.on("connect", (client) => {
   client
-    .query([
-      "CREATE TABLE IF NOT EXISTS technical_analysis(stock_id text, target text, type text)",
-      "CREATE TABLE IF NOT EXISTS stocks(stock_id text, target text, type text)"
-    ]
+    .query(
+      "CREATE TABLE IF NOT EXISTS technical_analysis(stock_id text, target text, type text)"
     )
     .catch((err) => console.error(err));
 });
@@ -81,7 +79,7 @@ app.get("/stocks", async (req, res) => {
       console.log("error looping through stock values" + err);
       return res.status(422).send("Stock connection lost");
     }
-    return res.json(values);
+    return res.json(JSON.parse(stocks));
   });
 });
 
