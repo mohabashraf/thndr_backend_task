@@ -10,6 +10,24 @@ app.use(cors());
 
 app.use(bodyParser.json());
 
+
+// Postgres Client Setup
+const { Pool } = require("pg");
+const pgClient = new Pool({
+  user: keys.pgUser,
+  host: keys.pgHost,
+  database: keys.pgDatabase,
+  password: keys.pgPassword,
+  port: keys.pgPort,
+});
+
+pgClient.on("connect", (client) => {
+  client
+    .query("CREATE TABLE IF NOT EXISTS stocks(stock_id text, name text, price INT, availability INT)")
+    .catch((err) => console.error(err));
+});
+
+
 const mqttClient = mqtt.connect(`mqtt:${keys.mqttHost}:${keys.mqttPort}`);
 
 mqttClient.on("connect", function () {
@@ -26,21 +44,6 @@ mqttClient.on("message", function (topic, message) {
 
 });
 
-// Postgres Client Setup
-const { Pool } = require("pg");
-const pgClient = new Pool({
-  user: keys.pgUser,
-  host: keys.pgHost,
-  database: keys.pgDatabase,
-  password: keys.pgPassword,
-  port: keys.pgPort,
-});
-
-pgClient.on("connect", (client) => {
-  client
-    .query("CREATE TABLE IF NOT EXISTS values (number INT)")
-    .catch((err) => console.error(err));
-});
 
 // Redis Client Setup
 const redis = require("redis");
@@ -58,13 +61,13 @@ app.get("/", (req, res) => {
 });
 
 app.get("/values/all", async (req, res) => {
-  const values = await pgClient.query("SELECT * from values");
+  const values = await pgClient.query("SELECT * from stocks");
 
   res.send(values.rows);
 });
 
 app.get("/stocks", async (req, res) => {
-  redisClient.hgetall("values", (err, values) => {
+  await redisClient.hgetall("values", (err, values) => {
     if (err) {
       console.log("error in fetching values" + err);
       return res.status(422).send("Stock connection lost");
@@ -74,7 +77,7 @@ app.get("/stocks", async (req, res) => {
     try {
       console.log(values)
       console.log(typeof values)
-      stocks = await Object.values(values);
+      stocks =  Object.values(values);
     } catch (err) {
       console.log("error looping through stock values" + err);
       return res.status(422).send("Stock connection lost");
