@@ -93,7 +93,7 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
   console.log("The param " + req.params.stock_id)
 
   let stock = "" 
-  const resolve = await redisClient.get(req.params.stock_id, (err, value) => {
+  const resolve = await redisClient.hget("values",req.params.stock_id, (err, value) => {
     if (err) { 
       console.log("error while retrieving stock value" + err);
       return res.status(422).send("Stock connection lost");
