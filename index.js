@@ -58,9 +58,9 @@ app.get("/", (req, res) => {
   res.send("Hi");
 });
 
-app.get("/values/all/:stock_id", async (req, res) => {
+app.get("/values/all", async (req, res) => {
   const values = await pgClient
-    .query("SELECT * from admin_technical_analysis WHERE stock_id = $1 ORDER BY time DESC LIMIT 1 ", [req.query.stock_id])
+    .query("SELECT * from stock_analysis ")
     .catch((err) => console.log(err));
   res.send(values.rows);
 });
