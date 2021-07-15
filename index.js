@@ -10,21 +10,19 @@ app.use(cors());
 
 app.use(bodyParser.json());
 
-const mqttClient = mqtt.connect(`mqtt:${keys.mqttHost}:${keys.mqttPort}`) 
+const mqttClient = mqtt.connect(`mqtt:${keys.mqttHost}:${keys.mqttPort}`);
 
-mqttClient.on('connect', function() {
-  mqttClient.subscribe('thndr-trading', (err) => {
+mqttClient.on("connect", function () {
+  mqttClient.subscribe("thndr-trading", (err) => {
     console.log(err);
   });
 });
 
-mqttClient.on('message', function(topic, message) {
+mqttClient.on("message", function (topic, message) {
   // message is Buffer
   const stock = JSON.parse(message.toString());
-  redisClient.hset("values", stock.name, message);
+  redisClient.hset("values", stock.stock_id, message);
 });
-
-
 
 // Postgres Client Setup
 const { Pool } = require("pg");
@@ -35,9 +33,6 @@ const pgClient = new Pool({
   password: keys.pgPassword,
   port: keys.pgPort,
 });
-
-
-
 
 pgClient.on("connect", (client) => {
   client
@@ -66,11 +61,37 @@ app.get("/values/all", async (req, res) => {
   res.send(values.rows);
 });
 
-app.get("/values/current", async (req, res) => {
+app.get("/stocks", async (req, res) => {
   redisClient.hgetall("values", (err, values) => {
-
-    res.json(values);
+    let stocks = [];
+    values.forEach((key, value) => stocks.push(value));
+    res.json(stocks);
   });
+});
+
+app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
+  const { target, type } = req.body;
+
+
+  const stock = redisClient.get(req.params.stock_id);
+  let target_hit = true;
+  if (stock.price > target && type === "UP") {
+    target_hit = true;
+  } else {
+    target_hit = false;
+  }
+
+  let output = {
+    target,
+    type,
+    target_hit,
+  };
+
+  redisPublisher.publish("insert", {target, type});
+
+
+  res.json(output)
+
 });
 
 app.post("/values", async (req, res) => {
