@@ -67,19 +67,19 @@ app.get("/stocks", async (req, res) => {
   redisClient.hgetall("values", (err, values) => {
     if (err) {
       console.log("error in fetching values" + err);
-      res.status(422).send("Stock connection lost");
+      return res.status(422).send("Stock connection lost");
     }
 
     let stocks = [];
     try {
       console.log(values)
       console.log(typeof values)
-      stocks = Object.values(values);
+      stocks = await Object.values(values);
     } catch (err) {
       console.log("error looping through stock values" + err);
-      res.status(422).send("Stock connection lost");
+      return res.status(422).send("Stock connection lost");
     }
-    res.json(stocks);
+    return res.json(stocks);
   });
 });
 
@@ -118,7 +118,7 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
   // pgClient.query("INSERT INTO values(number) VALUES($1)", ["inde"]);
   // redisPublisher.publish("insert", {target, type});
 
-  res.json(output);
+  return res.json(output);
 });
 
 app.post("/values", async (req, res) => {
