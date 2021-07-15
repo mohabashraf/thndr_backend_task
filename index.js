@@ -104,9 +104,10 @@ app.get("/analysis", async (req, res) => {
       console.log("error looping through stock values" + err);
       return res.status(422).send("Stock connection lost");
     }
-    return res.json(values);
+    return res.json(stocks);
   });
 });
+
 
 
 app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
@@ -121,6 +122,7 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
         reject(err);
         return res.status(422).send("error while retrieving value");
       }
+
       resolve(JSON.parse(value.toString()));
     });
   }).catch((err) => {
@@ -157,6 +159,39 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
 
   res.json(output);
 });
+
+
+
+app.get("/stocks/:stock_id", async (req, res) => {
+
+  console.log("The param " + req.params.stock_id);
+
+  let stock = "";
+  stock = await new Promise((resolve) => {
+    redisClient.hget("stocks_analysis", req.params.stock_id, (err, value) => {
+      if (err) {
+        reject(err);
+        return res.status(422).send("error while retrieving value");
+      }
+      resolve(JSON.parse(value.toString()));
+    });
+  }).catch((err) => {
+    console.log("Errot", err);
+    return res.status(422).send("error while retrieving value");
+  });
+
+  console.log("the stock " + stock);
+
+  if (stock === "") {
+    return res.status(422).send("Stock is empty");
+  }
+
+
+  res.json(stock);
+});
+
+
+
 
 app.post("/values", async (req, res) => {
   const index = req.body.index;
