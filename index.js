@@ -59,7 +59,9 @@ app.get("/", (req, res) => {
 });
 
 app.get("/values/all", async (req, res) => {
-  const values = await pgClient.query("SELECT * from admin_technical_analysis").catch((err) => console.log(err));
+  const values = await pgClient
+    .query("SELECT * from admin_technical_analysis")
+    .catch((err) => console.log(err));
   res.send(values.rows);
 });
 
@@ -83,8 +85,6 @@ app.get("/stocks", async (req, res) => {
   });
 });
 
-
-
 app.get("/analysis", async (req, res) => {
   await redisClient.hgetall("technical_analysis", (err, values) => {
     if (err) {
@@ -104,8 +104,6 @@ app.get("/analysis", async (req, res) => {
     return res.json(stocks);
   });
 });
-
-
 
 app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
   const { target, type } = req.body;
@@ -148,19 +146,20 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
 
   pgClient.query(
     "INSERT INTO admin_technical_analysis(stock_id, target, type, time) VALUES($1, $2, $3, $4)",
-    [req.params.stock_id, target, type, Date.now()]
+    [req.params.stock_id, target, type, new Date().toISOString()]
   );
   // redisPublisher.publish("insert", {target, type});
 
-  redisClient.hset("technical_analysis", stock.stock_id, JSON.stringify({target, type}));
+  redisClient.hset(
+    "technical_analysis",
+    stock.stock_id,
+    JSON.stringify({ target, type })
+  );
 
   res.json(output);
 });
 
-
-
 app.get("/stocks/:stock_id", async (req, res) => {
-
   console.log("The param " + req.params.stock_id);
 
   let stock = "";
@@ -177,16 +176,12 @@ app.get("/stocks/:stock_id", async (req, res) => {
     return res.status(422).send("error while retrieving value");
   });
 
-
   if (stock === "") {
     return res.status(422).send("Stock is empty");
   }
 
-
   res.json(JSON.parse(stock));
 });
-
-
 
 app.listen(5000, (err) => {
   console.log("Listening");
