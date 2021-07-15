@@ -72,7 +72,7 @@ app.get("/stocks", async (req, res) => {
     try {
       console.log(values)
       console.log(typeof values)
-      values.forEach((key, value) => stocks.push(value));
+      stocks = Object.values(values);
     } catch (err) {
       console.log("error looping through stock values" + err);
       res.status(422).send("Stock connection lost");
