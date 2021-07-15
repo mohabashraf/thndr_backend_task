@@ -90,17 +90,20 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
   console.log("The param " + req.params.stock_id);
 
   let stock = "";
-   stock = await new Promise((resolve) => {
+  stock = await new Promise((resolve) => {
     redisClient.hget("values", req.params.stock_id, (err, value) => {
       if (err) {
         reject(err);
         return res.status(422).send("error while retrieving value");
       }
-      resolve(value);
+      resolve(JSON.parse(value.toString()));
     });
+  }).catch((err) => {
+    console.log("Errot", err);
+    return res.status(422).send("error while retrieving value");
   });
 
-  // console.log("the resolve " + resolve);
+  console.log("the stock " + stock);
 
   if (stock === "") {
     return res.status(422).send("Stock is empty");
