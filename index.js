@@ -10,7 +10,6 @@ app.use(cors());
 
 app.use(bodyParser.json());
 
-
 // Postgres Client Setup
 const { Pool } = require("pg");
 const pgClient = new Pool({
@@ -23,11 +22,14 @@ const pgClient = new Pool({
 
 pgClient.on("connect", (client) => {
   client
-    .query("CREATE TABLE IF NOT EXISTS stocks(stock_id text, name text, price INT, availability INT)")
-    .query("CREATE TABLE IF NOT EXISTS technical_analysis(stock_id text, target text, type text)")
+    .query(
+      "CREATE TABLE IF NOT EXISTS stocks(stock_id text, name text, price INT, availability INT)"
+    )
+    .query(
+      "CREATE TABLE IF NOT EXISTS technical_analysis(stock_id text, target text, type text)"
+    )
     .catch((err) => console.error(err));
 });
-
 
 const mqttClient = mqtt.connect(`mqtt:${keys.mqttHost}:${keys.mqttPort}`);
 
@@ -42,9 +44,7 @@ mqttClient.on("message", function (topic, message) {
   const stock = JSON.parse(message.toString());
   redisClient.hset("values", stock.stock_id, message);
   redisPublisher.publish("insert", stock.stock_id);
-
 });
-
 
 // Redis Client Setup
 const redis = require("redis");
@@ -76,9 +76,9 @@ app.get("/stocks", async (req, res) => {
 
     let stocks = [];
     try {
-      console.log(values)
-      console.log(typeof values)
-      stocks =  Object.values(values);
+      console.log(values);
+      console.log(typeof values);
+      stocks = Object.values(values);
     } catch (err) {
       console.log("error looping through stock values" + err);
       return res.status(422).send("Stock connection lost");
@@ -87,24 +87,25 @@ app.get("/stocks", async (req, res) => {
   });
 });
 
-app.post("/admin/stocks/:stock_id/analysis",  (req, res) => {
+app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
   const { target, type } = req.body;
 
-  console.log("The param " + req.params.stock_id)
+  console.log("The param " + req.params.stock_id);
 
-  let stock = "" 
-  const resolve =  redisClient.hget("values",req.params.stock_id, (err, value) => {
-    if (err) { 
-      console.log("error while retrieving stock value" + err);
-      return res.status(422).send("Stock connection lost");
-    }
-    stock = value;
-    console.log("the stock " + stock )
+  let stock = "";
+  const resolve = await new Promise((resolve) => {
+    redisClient.hget("values", req.params.stock_id, (err, value) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(value);
+      console.log("the stock " + stock);
+    });
   });
 
   console.log("the resolve " + resolve);
 
-  if(stock === ""){
+  if (stock === "") {
     return res.status(422).send("Stock is empty");
   }
 
@@ -122,7 +123,10 @@ app.post("/admin/stocks/:stock_id/analysis",  (req, res) => {
     target_hit,
   };
 
-  pgClient.query("INSERT INTO technical_analysis(stock_id, target, type) VALUES($1, $2, $3)", [req.params.stock_id, target, type]);
+  pgClient.query(
+    "INSERT INTO technical_analysis(stock_id, target, type) VALUES($1, $2, $3)",
+    [req.params.stock_id, target, type]
+  );
   // redisPublisher.publish("insert", {target, type});
 
   return res.json(output);
