@@ -83,7 +83,7 @@ app.get("/stocks", async (req, res) => {
       console.log("error looping through stock values" + err);
       return res.status(422).send("Stock connection lost");
     }
-    return res.json(stocks);
+    return res.json(values);
   });
 });
 
@@ -100,7 +100,6 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
     }
 
     console.log("the value " + value)
-    return resolve(value);
   });
 
   console.log("the resolve " + resolve);
