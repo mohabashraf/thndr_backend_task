@@ -59,7 +59,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/values/all", async (req, res) => {
-  const values = await pgClient.query("SELECT * from technical_analysis").catch((err) => console.log(err));
+  const values = await pgClient.query("SELECT * from admin_technical_analysis").catch((err) => console.log(err));
   res.send(values.rows);
 });
 
@@ -147,8 +147,8 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
   };
 
   pgClient.query(
-    "INSERT INTO technical_analysis(stock_id, target, type) VALUES($1, $2, $3)",
-    [req.params.stock_id, target, type]
+    "INSERT INTO admin_technical_analysis(stock_id, target, type, time) VALUES($1, $2, $3, $4)",
+    [req.params.stock_id, target, type, Date.now()]
   );
   // redisPublisher.publish("insert", {target, type});
 
