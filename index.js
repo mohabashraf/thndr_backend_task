@@ -22,7 +22,7 @@ mqttClient.on("message", function (topic, message) {
   // message is Buffer
   const stock = JSON.parse(message.toString());
   redisClient.hset("values", stock.stock_id, message);
-  redisPublisher.publish("insert", index);
+  // redisPublisher.publish("insert", index);
 
 });
 
