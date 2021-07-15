@@ -22,6 +22,8 @@ mqttClient.on("message", function (topic, message) {
   // message is Buffer
   const stock = JSON.parse(message.toString());
   redisClient.hset("values", stock.stock_id, message);
+  redisPublisher.publish("insert", index);
+
 });
 
 // Postgres Client Setup
@@ -86,7 +88,7 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
 
   console.log("The param " + req.params.stock_id)
 
-  const stock = redisClient.get(req.params.stock_id);
+  const stock = redisClient.hget(req.params.stock_id, (value) => console.log("the value of the hash : " + value));
 
   console.log("stock  " + stock);
   let target_hit = true;
