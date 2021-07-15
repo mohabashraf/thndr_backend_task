@@ -10,23 +10,23 @@ app.use(cors());
 
 app.use(bodyParser.json());
 
-// // Postgres Client Setup
-// const { Pool } = require("pg");
-// const pgClient = new Pool({
-//   user: keys.pgUser,
-//   host: keys.pgHost,
-//   database: keys.pgDatabase,
-//   password: keys.pgPassword,
-//   port: keys.pgPort,
-// });
+// Postgres Client Setup
+const { Pool } = require("pg");
+const pgClient = new Pool({
+  user: keys.pgUser,
+  host: keys.pgHost,
+  database: keys.pgDatabase,
+  password: keys.pgPassword,
+  port: keys.pgPort,
+});
 
-// pgClient.on("connect", (client) => {
-//   client
-//     .query(
-//       "CREATE TABLE IF NOT EXISTS admin_technical_analysis(id SERIAL PRIMARY KEY, stock_id text, target text, type text, time timestamp)"
-//     )
-//     .catch((err) => console.error(err));
-// });
+pgClient.on("connect", (client) => {
+  client
+    .query(
+      "CREATE TABLE IF NOT EXISTS admin_technical_analysis(id SERIAL PRIMARY KEY, stock_id text, target text, type text, time timestamp)"
+    )
+    .catch((err) => console.error(err));
+});
 
 const mqttClient = mqtt.connect(`mqtt:${keys.mqttHost}:${keys.mqttPort}`);
 
