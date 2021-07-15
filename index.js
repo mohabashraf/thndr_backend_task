@@ -74,6 +74,8 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
 
 
   const stock = redisClient.get(req.params.stock_id);
+
+  console.log("stock  " + stock)
   let target_hit = true;
   if (stock.price > target && type === "UP") {
     target_hit = true;
@@ -87,7 +89,8 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
     target_hit,
   };
 
-  redisPublisher.publish("insert", {target, type});
+  pgClient.query("INSERT INTO values(number) VALUES($1)", ["inde"]);
+  // redisPublisher.publish("insert", {target, type});
 
 
   res.json(output)
