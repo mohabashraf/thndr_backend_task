@@ -88,7 +88,18 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
 
   console.log("The param " + req.params.stock_id)
 
-  const stock = redisClient.hget(req.params.stock_id, (value) => console.log("the value of the hash : " + value));
+  const stock = "" 
+  redisClient.get(req.params.stock_id, (err, value) => {
+    if (err) { 
+      console.log("error while retrieving stock value" + err);
+      res.status(422).send("Stock connection lost");
+    }
+    stock = value;
+  });
+
+  if(stock === ""){
+    res.status(422).send("Stock is empty");
+  }
 
   console.log("stock  " + stock);
   let target_hit = true;
