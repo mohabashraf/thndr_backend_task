@@ -61,8 +61,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/values/all", async (req, res) => {
-  const values = await pgClient.query("SELECT * from technical_analysis");
-
+  const values = await pgClient.query("SELECT * from technical_analysis BY date DESC LIMIT 1");
   res.send(values.rows);
 });
 
