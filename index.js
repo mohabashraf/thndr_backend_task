@@ -88,7 +88,7 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
 
   console.log("The param " + req.params.stock_id)
 
-  const stock = "" 
+  let stock = "" 
   redisClient.get(req.params.stock_id, (err, value) => {
     if (err) { 
       console.log("error while retrieving stock value" + err);
