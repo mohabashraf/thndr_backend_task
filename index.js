@@ -70,6 +70,8 @@ app.get("/stocks", async (req, res) => {
 
     let stocks = [];
     try {
+      console.log(values)
+      console.log(typeof values)
       values.forEach((key, value) => stocks.push(value));
     } catch (err) {
       console.log("error looping through stock values" + err);
@@ -98,7 +100,7 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
     target_hit,
   };
 
-  pgClient.query("INSERT INTO values(number) VALUES($1)", ["inde"]);
+  // pgClient.query("INSERT INTO values(number) VALUES($1)", ["inde"]);
   // redisPublisher.publish("insert", {target, type});
 
   res.json(output);
