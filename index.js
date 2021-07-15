@@ -155,7 +155,7 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
   );
   // redisPublisher.publish("insert", {target, type});
 
-  redisClient.hset("technical_analysis", stock.stock_id, JSON.parse({target, type}.toString()));
+  redisClient.hset("technical_analysis", stock.stock_id, JSON.stringify({target, type}));
 
   res.json(output);
 });
