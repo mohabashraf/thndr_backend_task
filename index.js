@@ -20,13 +20,13 @@ const pgClient = new Pool({
   port: keys.pgPort,
 });
 
-pgClient.on("connect", (client) => {
-  client
-    .query(
-      "CREATE TABLE IF NOT EXISTS admin_technical_analysis(id SERIAL PRIMARY KEY, stock_id text, target text, type text, time timestamp)"
-    )
-    .catch((err) => console.error(err));
-});
+// pgClient.on("connect", (client) => {
+//   client
+//     .query(
+//       "CREATE TABLE IF NOT EXISTS admin_technical_analysis(id SERIAL PRIMARY KEY, stock_id text, target text, type text, time timestamp)"
+//     )
+//     .catch((err) => console.error(err));
+// });
 
 const mqttClient = mqtt.connect(`mqtt:${keys.mqttHost}:${keys.mqttPort}`);
 
@@ -58,12 +58,28 @@ app.get("/", (req, res) => {
   res.send("Hi");
 });
 
-app.get("/values/all", async (req, res) => {
+app.get("/stocks/all", async (req, res) => {
   const values = await pgClient
     .query("SELECT * from stocks")
     .catch((err) => console.log(err));
   res.send(values.rows);
 });
+
+app.get("/analysis/all", async (req, res) => {
+  const values = await pgClient
+    .query("SELECT * from stock_analysis")
+    .catch((err) => console.log(err));
+  res.send(values.rows);
+});
+
+app.get("/techanalysis/all", async (req, res) => {
+  const values = await pgClient
+    .query("SELECT * from admin_technical_analysis")
+    .catch((err) => console.log(err));
+  res.send(values.rows);
+});
+
+
 
 app.get("/stocks", async (req, res) => {
   await redisClient.hgetall("stocks", (err, values) => {
@@ -144,10 +160,10 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
     target_hit,
   };
 
-  pgClient.query(
-    "INSERT INTO admin_technical_analysis(stock_id, target, type, time) VALUES($1, $2, $3, $4)",
-    [req.params.stock_id, target, type, new Date().toISOString()]
-  );
+  // pgClient.query(
+  //   "INSERT INTO admin_technical_analysis(stock_id, target, type, time) VALUES($1, $2, $3, $4)",
+  //   [req.params.stock_id, target, type, new Date().toISOString()]
+  // );
   // redisPublisher.publish("insert", {target, type});
 
   redisClient.hset(
