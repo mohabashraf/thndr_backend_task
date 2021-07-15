@@ -41,7 +41,7 @@ mqttClient.on("connect", function () {
 mqttClient.on("message", function (topic, message) {
   // message is Buffer
   const stock = JSON.parse(message.toString());
-  redisClient.hset("values", stock.stock_id, message);
+  redisClient.hset("stocks", stock.stock_id, message);
   redisPublisher.publish("insert", stock.stock_id);
 });
 
@@ -67,7 +67,7 @@ app.get("/values/all", async (req, res) => {
 });
 
 app.get("/stocks", async (req, res) => {
-  await redisClient.hgetall("values", (err, values) => {
+  await redisClient.hgetall("stocks", (err, values) => {
     if (err) {
       console.log("error in fetching values" + err);
       return res.status(422).send("Stock connection lost");
@@ -86,6 +86,29 @@ app.get("/stocks", async (req, res) => {
   });
 });
 
+
+
+app.get("/analysis", async (req, res) => {
+  await redisClient.hgetall("technical_analysis", (err, values) => {
+    if (err) {
+      console.log("error in fetching values" + err);
+      return res.status(422).send("Stock connection lost");
+    }
+
+    let stocks = [];
+    try {
+      console.log(values);
+      console.log(typeof values);
+      stocks = Object.values(values);
+    } catch (err) {
+      console.log("error looping through stock values" + err);
+      return res.status(422).send("Stock connection lost");
+    }
+    return res.json(values);
+  });
+});
+
+
 app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
   const { target, type } = req.body;
 
@@ -93,7 +116,7 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
 
   let stock = "";
   stock = await new Promise((resolve) => {
-    redisClient.hget("values", req.params.stock_id, (err, value) => {
+    redisClient.hget("stocks", req.params.stock_id, (err, value) => {
       if (err) {
         reject(err);
         return res.status(422).send("error while retrieving value");
@@ -129,6 +152,8 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
     [req.params.stock_id, target, type]
   );
   // redisPublisher.publish("insert", {target, type});
+
+  redisClient.hset("technical_analysis", stock.stock_id, {target, type});
 
   res.json(output);
 });
