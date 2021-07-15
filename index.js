@@ -22,7 +22,7 @@ mqttClient.on("message", function (topic, message) {
   // message is Buffer
   const stock = JSON.parse(message.toString());
   redisClient.hset("values", stock.stock_id, message);
-  // redisPublisher.publish("insert", index);
+  redisPublisher.publish("insert", stock.stock_id);
 
 });
 
@@ -89,16 +89,16 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
   console.log("The param " + req.params.stock_id)
 
   let stock = "" 
-  redisClient.get(req.params.stock_id, (err, value) => {
+  await redisClient.get(req.params.stock_id, (err, value) => {
     if (err) { 
       console.log("error while retrieving stock value" + err);
-      res.status(422).send("Stock connection lost");
+      return res.status(422).send("Stock connection lost");
     }
     stock = value;
   });
 
   if(stock === ""){
-    res.status(422).send("Stock is empty");
+    return res.status(422).send("Stock is empty");
   }
 
   console.log("stock  " + stock);
