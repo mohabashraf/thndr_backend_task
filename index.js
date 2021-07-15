@@ -100,7 +100,7 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
     });
   });
 
-  console.log("the resolve " + resolve);
+  // console.log("the resolve " + resolve);
 
   if (stock === "") {
     return res.status(422).send("Stock is empty");
