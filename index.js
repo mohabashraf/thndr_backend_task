@@ -97,19 +97,18 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
     redisClient.hget("values", req.params.stock_id, (err, value) => {
       if (err) {
         reject(err);
+        return res.status(422).send("error while retrieving value");
       }
       resolve(value);
-      console.log("the stock " + stock);
     });
   });
 
   console.log("the resolve " + resolve);
 
-  if (stock === "") {
+  if (resolve === "") {
     return res.status(422).send("Stock is empty");
   }
 
-  console.log("stock  " + stock);
   let target_hit = true;
   if (stock.price > target && type === "UP") {
     target_hit = true;
