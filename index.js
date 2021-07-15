@@ -169,10 +169,10 @@ app.get("/stocks/:stock_id", async (req, res) => {
         reject(err);
         return res.status(422).send("error while retrieving value");
       }
-      if(value){
+      if (value) {
         resolve(value);
-      }else {
-        return ""
+      } else {
+        return resolve("");
       }
     });
   }).catch((err) => {
