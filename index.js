@@ -23,9 +23,6 @@ const pgClient = new Pool({
 pgClient.on("connect", (client) => {
   client
     .query(
-      "CREATE TABLE IF NOT EXISTS stocks(stock_id text, name text, price INT, availability INT)"
-    )
-    .query(
       "CREATE TABLE IF NOT EXISTS technical_analysis(stock_id text, target text, type text)"
     )
     .catch((err) => console.error(err));
@@ -93,7 +90,7 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
   console.log("The param " + req.params.stock_id);
 
   let stock = "";
-  const resolve = await new Promise((resolve) => {
+   stock = await new Promise((resolve) => {
     redisClient.hget("values", req.params.stock_id, (err, value) => {
       if (err) {
         reject(err);
@@ -105,7 +102,7 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
 
   console.log("the resolve " + resolve);
 
-  if (resolve === "") {
+  if (stock === "") {
     return res.status(422).send("Stock is empty");
   }
 
@@ -128,7 +125,7 @@ app.post("/admin/stocks/:stock_id/analysis", async (req, res) => {
   );
   // redisPublisher.publish("insert", {target, type});
 
-  return res.json(output);
+  res.json(output);
 });
 
 app.post("/values", async (req, res) => {
